@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import
+
 from boto.utils import parse_ts
 from django.core.files.base import File
 from django.core.files.storage import get_storage_class
@@ -67,3 +69,30 @@ class CachedS3BotoStorage(S3BotoStorage):
             entry = self.bucket.get_key(self._encode_name(name))
         # Parse the last_modified string to a local datetime object.
         return parse_ts(entry.last_modified)
+
+
+class FixedStorageMixin(object):
+    def url(self, name):
+        url = super(FixedStorageMixin, self).url(name)
+        if name.endswith('/') and not url.endswith('/'):
+            url += '/'
+        return url
+
+class CachedRootS3BotoStorage(FixedStorageMixin, CachedS3BotoStorage):
+    "S3 storage backend that sets the static bucket."
+    def __init__(self, *args, **kwargs):
+        kwargs['location'] = 'static'
+        super(CachedRootS3BotoStorage, self).__init__(*args, **kwargs)
+
+class StaticRootS3BotoStorage(CachedRootS3BotoStorage):
+    "S3 storage backend that sets the static bucket."
+    def __init__(self, *args, **kwargs):
+        kwargs['gzip'] = False
+        super(StaticRootS3BotoStorage, self).__init__(*args, **kwargs)
+
+class MediaRootS3BotoStorage(FixedStorageMixin, S3BotoStorage):
+    "S3 storage backend that sets the media bucket."
+    def __init__(self, *args, **kwargs):
+        super(MediaRootS3BotoStorage, self).__init__(location='media',
+                                              *args, **kwargs)
+        

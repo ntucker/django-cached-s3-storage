@@ -8,9 +8,9 @@ Code copied from https://github.com/jezdez/django_compressor/issues/100.
 Example settings:
 ::
 
-	DEFAULT_FILE_STORAGE = 'storages.backends.s3boto.S3BotoStorage'
-	STATICFILES_STORAGE = 'cached_s3_storage.CachedS3BotoStorage'
-	COMPRESS_STORAGE = STATICFILES_STORAGE
+	DEFAULT_FILE_STORAGE = 'cached_s3_storage.MediaRootS3BotoStorage'
+	STATICFILES_STORAGE = 'cached_s3_storage.StaticRootS3BotoStorage'
+	COMPRESS_STORAGE = 'cached_s3_storage.CachedRootS3BotoStorage'
 
 	AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
 	AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
