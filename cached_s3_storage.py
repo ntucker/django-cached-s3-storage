@@ -6,6 +6,7 @@ from boto.utils import parse_ts
 from django.core.files.base import File
 from django.core.files.storage import get_storage_class
 from storages.backends.s3boto import S3BotoStorage
+from staticfiles.storage import CachedFilesMixin
 
 import os
 
@@ -78,7 +79,7 @@ class FixedStorageMixin(object):
             url += '/'
         return url
 
-class CachedRootS3BotoStorage(FixedStorageMixin, CachedS3BotoStorage):
+class CachedRootS3BotoStorage(FixedStorageMixin, CachedFilesMixin, CachedS3BotoStorage):
     "S3 storage backend that sets the static bucket."
     def __init__(self, *args, **kwargs):
         kwargs['location'] = 'static'
