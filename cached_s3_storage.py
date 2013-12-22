@@ -6,7 +6,7 @@ from boto.utils import parse_ts
 from django.core.files.base import File
 from django.core.files.storage import get_storage_class
 from storages.backends.s3boto import S3BotoStorage
-from staticfiles.storage import CachedFilesMixin
+from django.contrib.staticfiles.storage import CachedFilesMixin
 
 import os
 
