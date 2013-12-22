@@ -73,13 +73,13 @@ class CachedS3BotoStorage(S3BotoStorage):
 
 
 class FixedStorageMixin(object):
-    def url(self, name):
-        url = super(FixedStorageMixin, self).url(name)
+    def url(self, name, **kwargs):
+        url = super(FixedStorageMixin, self).url(name, **kwargs)
         if name.endswith('/') and not url.endswith('/'):
             url += '/'
         return url
 
-class CachedRootS3BotoStorage(FixedStorageMixin, CachedFilesMixin, CachedS3BotoStorage):
+class CachedRootS3BotoStorage(FixedStorageMixin, CachedS3BotoStorage):
     "S3 storage backend that sets the static bucket."
     def __init__(self, *args, **kwargs):
         kwargs['location'] = 'static'
