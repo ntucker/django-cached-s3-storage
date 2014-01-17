@@ -2,17 +2,17 @@
 
 from __future__ import absolute_import
 
-from boto.utils import parse_ts
+from django.contrib.staticfiles.storage import CachedFilesMixin
 from django.core.files.base import File
 from django.core.files.storage import get_storage_class
-from storages.backends.s3boto import S3BotoStorage
-from django.contrib.staticfiles.storage import CachedFilesMixin
-
 import os
 
+from boto.utils import parse_ts
+from require.storage import OptimizedFilesMixin
+from storages.backends.s3boto import S3BotoStorage
+
+
 # From https://github.com/jezdez/django_compressor/issues/100
-
-
 class ForgivingFile(File):
     def _get_size(self):
         if not hasattr(self, '_size'):
@@ -79,7 +79,7 @@ class FixedStorageMixin(object):
             url += '/'
         return url
 
-class CachedRootS3BotoStorage(FixedStorageMixin, CachedS3BotoStorage):
+class CachedRootS3BotoStorage(OptimizedFilesMixin, FixedStorageMixin, CachedS3BotoStorage):
     "S3 storage backend that sets the static bucket."
     def __init__(self, *args, **kwargs):
         kwargs['location'] = 'static'
