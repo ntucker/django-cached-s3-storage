@@ -86,10 +86,11 @@ class CachedRootS3BotoStorage(OptimizedFilesMixin, FixedStorageMixin, CachedS3Bo
         super(CachedRootS3BotoStorage, self).__init__(*args, **kwargs)
 
 class StaticRootS3BotoStorage(CachedRootS3BotoStorage):
-    "S3 storage backend that sets the static bucket."
-    def __init__(self, *args, **kwargs):
-        kwargs['gzip'] = False
-        super(StaticRootS3BotoStorage, self).__init__(*args, **kwargs)
+    "This doesn't gzip css files because they need to be read by compressor to compress them"
+    gzip_content_types = (
+        'application/javascript',
+        'application/x-javascript',
+    )
 
 class MediaRootS3BotoStorage(FixedStorageMixin, S3BotoStorage):
     "S3 storage backend that sets the media bucket."
