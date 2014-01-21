@@ -79,13 +79,13 @@ class FixedStorageMixin(object):
             url += '/'
         return url
 
-class CachedRootS3BotoStorage(OptimizedFilesMixin, FixedStorageMixin, CachedS3BotoStorage):
+class CachedRootS3BotoStorage(FixedStorageMixin, CachedS3BotoStorage):
     "S3 storage backend that sets the static bucket."
     def __init__(self, *args, **kwargs):
         kwargs['location'] = 'static'
         super(CachedRootS3BotoStorage, self).__init__(*args, **kwargs)
 
-class StaticRootS3BotoStorage(CachedRootS3BotoStorage):
+class StaticRootS3BotoStorage(OptimizedFilesMixin, CachedFilesMixin, CachedRootS3BotoStorage):
     "This doesn't gzip css files because they need to be read by compressor to compress them"
     gzip_content_types = (
         'application/javascript',
