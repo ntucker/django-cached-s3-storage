@@ -59,7 +59,9 @@ class CachedS3BotoStorage(S3BotoStorage):
 
     def save(self, name, content):
         content = ForgivingFile(content)
+        original_file_content = content.file
         name = super(CachedS3BotoStorage, self).save(name, content)
+        content.file = original_file_content
         self.local_storage._save(name, content)
         return name
 
@@ -97,4 +99,3 @@ class MediaRootS3BotoStorage(FixedStorageMixin, S3BotoStorage):
     def __init__(self, *args, **kwargs):
         super(MediaRootS3BotoStorage, self).__init__(location='media',
                                               *args, **kwargs)
-        
