@@ -2,13 +2,15 @@
 
 from __future__ import absolute_import
 
+import logging
+
 from django.contrib.staticfiles.storage import CachedFilesMixin
 from django.core.files.base import File
 from django.core.files.storage import get_storage_class
+from django.conf import settings
 import os
 
 from boto.utils import parse_ts
-from require.storage import OptimizedFilesMixin
 from storages.backends.s3boto import S3BotoStorage
 
 
@@ -55,7 +57,7 @@ class ForgivingFile(File):
 class CachedS3BotoStorage(S3BotoStorage):
     def __init__(self, *args, **kwargs):
         super(CachedS3BotoStorage, self).__init__(*args, **kwargs)
-        self.local_storage = get_storage_class('compressor.storage.CompressorFileStorage')()
+        self.local_storage = get_storage_class('compressor.storage.CompressorFileStorage')(location=os.path.join(settings.PROJECT_ROOT, '..', 'static'))
 
     def save(self, name, content):
         content = ForgivingFile(content)
@@ -81,21 +83,23 @@ class FixedStorageMixin(object):
             url += '/'
         return url
 
+
 class CachedRootS3BotoStorage(FixedStorageMixin, CachedS3BotoStorage):
     "S3 storage backend that sets the static bucket."
     def __init__(self, *args, **kwargs):
         kwargs['location'] = 'static'
         super(CachedRootS3BotoStorage, self).__init__(*args, **kwargs)
 
-class StaticRootS3BotoStorage(OptimizedFilesMixin, CachedFilesMixin, CachedRootS3BotoStorage):
-    "This doesn't gzip css files because they need to be read by compressor to compress them"
-    gzip_content_types = (
-        'application/javascript',
-        'application/x-javascript',
-    )
 
-class MediaRootS3BotoStorage(FixedStorageMixin, S3BotoStorage):
-    "S3 storage backend that sets the media bucket."
-    def __init__(self, *args, **kwargs):
-        super(MediaRootS3BotoStorage, self).__init__(location='media',
-                                              *args, **kwargs)
+class ForgivingCachedFilesMixin(CachedFilesMixin):
+    def hashed_name(self, name, content=None):
+        try:
+            out = super(ForgivingCachedFilesMixin, self).hashed_name(name, content)
+        except ValueError as e:
+            # This means that a file could not be found, and normally this would
+            # cause a fatal error, which seems rather excessive given that
+            # some packages have missing files in their css all the time.
+            logging.warning(e)
+            out = name
+        return out
+
