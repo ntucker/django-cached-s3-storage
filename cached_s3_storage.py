@@ -4,7 +4,7 @@ from __future__ import absolute_import
 
 import logging
 
-from django.contrib.staticfiles.storage import CachedFilesMixin
+from django.contrib.staticfiles.storage import ManifestFilesMixin
 from django.core.files.base import File
 from django.core.files.storage import get_storage_class
 from django.conf import settings
@@ -91,10 +91,10 @@ class CachedRootS3BotoStorage(FixedStorageMixin, CachedS3BotoStorage):
         super(CachedRootS3BotoStorage, self).__init__(*args, **kwargs)
 
 
-class ForgivingCachedFilesMixin(CachedFilesMixin):
+class ForgivingManifestFilesMixin(ManifestFilesMixin):
     def hashed_name(self, name, content=None):
         try:
-            out = super(ForgivingCachedFilesMixin, self).hashed_name(name, content)
+            out = super(ForgivingManifestFilesMixin, self).hashed_name(name, content)
         except ValueError as e:
             # This means that a file could not be found, and normally this would
             # cause a fatal error, which seems rather excessive given that
