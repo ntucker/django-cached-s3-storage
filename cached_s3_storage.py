@@ -11,7 +11,7 @@ from django.conf import settings
 import os
 
 from boto.utils import parse_ts
-from storages.backends.s3boto import S3BotoStorage
+from storages.backends.s3boto3 import S3Boto3Storage
 
 
 # From https://github.com/jezdez/django_compressor/issues/100
@@ -54,7 +54,7 @@ class ForgivingFile(File):
             yield data
 
 
-class CachedS3BotoStorage(S3BotoStorage):
+class CachedS3BotoStorage(S3Boto3Storage):
     def __init__(self, *args, **kwargs):
         super(CachedS3BotoStorage, self).__init__(*args, **kwargs)
         self.local_storage = get_storage_class('compressor.storage.CompressorFileStorage')(location=os.path.join(settings.PROJECT_ROOT, '..', 'static'))
